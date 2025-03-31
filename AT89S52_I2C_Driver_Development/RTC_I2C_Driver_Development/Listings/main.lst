@@ -1,0 +1,227 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              06/23/2021 04:16:38 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          #include "lcd.h"
+   3          sbit sda=P1^0;
+   4          sbit scl=P1^1;
+   5          void start();
+   6          void write(unsigned char);
+   7          unsigned char read();
+   8          void stop();
+   9          unsigned char sec,min,hour,date,day,yr,mon,ch;
+  10          bit c=0;
+  11          void main()
+  12          {
+  13   1        start();
+  14   1        write(0xd0);
+  15   1        write(0x00);
+  16   1        write(0x00);
+  17   1        write(0x20);
+  18   1        write(0x10);
+  19   1        write(0x06);
+  20   1        write(0x18);
+  21   1        write(0x06);
+  22   1        write(0x21);
+  23   1        stop();
+  24   1        lcd_init();
+  25   1        cmd(0x80);
+  26   1        string("TIME:");
+  27   1        cmd(0xC0);
+  28   1        string("DATE:");
+  29   1        while(1)
+  30   1        {
+  31   2          unsigned char c,d;
+  32   2          start();
+  33   2          write(0xd0);
+  34   2          write(0x00);
+  35   2          start();
+  36   2          write(0xd1);
+  37   2          read();
+  38   2          sec=ch;
+  39   2          sec=sec&0x7f;
+  40   2          stop();
+  41   2          start();
+  42   2          write(0xd0);
+  43   2          write(0x01);
+  44   2          start();
+  45   2          write(0xd1);
+  46   2          read();
+  47   2          min=ch;
+  48   2          min=min&0x7f;
+  49   2          stop();
+  50   2          start();
+  51   2          write(0xd0);
+  52   2          write(0x02);
+  53   2          start();
+  54   2          write(0xd1);
+C51 COMPILER V9.60.0.0   MAIN                                                              06/23/2021 04:16:38 PAGE 2   
+
+  55   2          read();
+  56   2          hour=ch;
+  57   2          hour=hour&0x3f;
+  58   2          stop();
+  59   2          start();
+  60   2          write(0xd0);
+  61   2          write(0x03);
+  62   2          start();
+  63   2          write(0xd1);
+  64   2          read();
+  65   2          day=ch;
+  66   2          day=day&0x0f;
+  67   2          stop();
+  68   2          start();
+  69   2          write(0xd0);
+  70   2          write(0x04);
+  71   2          start();
+  72   2          write(0xd1);
+  73   2          read();
+  74   2          date=ch;
+  75   2          date=date&0x03f;
+  76   2          stop();
+  77   2          start();
+  78   2          write(0xd0);
+  79   2          write(0x05);
+  80   2          start();
+  81   2          write(0xd1);
+  82   2          read();
+  83   2          mon=ch;
+  84   2          mon=mon&0x0f;
+  85   2          stop();
+  86   2          start();
+  87   2          write(0xd0);
+  88   2          write(0x06);
+  89   2          start();
+  90   2          write(0xd1);
+  91   2          read();
+  92   2          yr=ch;
+  93   2          yr=yr&0x3f;
+  94   2          stop();
+  95   2          
+  96   2          c=hour&0x0f;
+  97   2          d=(hour&0xf0)>>4;
+  98   2          cmd(0x86);
+  99   2          dat(d|0x30);
+ 100   2          dat(c|0x30);
+ 101   2          dat(':');
+ 102   2          c=min&0x0f;
+ 103   2          d=(min&0xf0)>>4;
+ 104   2          dat(d|0x30);
+ 105   2          dat(c|0x30);
+ 106   2          dat(':');
+ 107   2          c=sec&0x0f;
+ 108   2          d=(sec&0xf0)>>4;
+ 109   2          dat(d|0x30);
+ 110   2          dat(c|0x30);
+ 111   2          
+ 112   2          
+ 113   2          
+ 114   2          c=date&0x0f;
+ 115   2          d=(date&0xf0)>>4;
+ 116   2          cmd(0xc6);
+C51 COMPILER V9.60.0.0   MAIN                                                              06/23/2021 04:16:38 PAGE 3   
+
+ 117   2          dat(d|0x30);
+ 118   2          dat(c|0x30);
+ 119   2          dat(':');
+ 120   2          c=mon&0x0f;
+ 121   2          d=(mon&0xf0)>>4;
+ 122   2          dat(d|0x30);
+ 123   2          dat(c|0x30);
+ 124   2          dat(':');
+ 125   2          c=yr&0x0f;
+ 126   2          d=(yr&0xf0)>>4;
+ 127   2          dat(d|0x30);
+ 128   2          dat(c|0x30);
+ 129   2          cmd(0xc6);
+ 130   2        }
+ 131   1      }
+ 132          
+ 133          void write(unsigned char value)
+ 134          {
+ 135   1        unsigned char c=0x80,d,e;
+ 136   1        d=value;
+ 137   1        for(e=0;e<8;e++)
+ 138   1        {
+ 139   2          sda=d&c;
+ 140   2          scl=1;
+ 141   2          lcd_delay();
+ 142   2          scl=0;
+ 143   2          d=d<<1;
+ 144   2        }
+ 145   1        c=sda;
+ 146   1        scl=1;
+ 147   1        lcd_delay();
+ 148   1        scl=0;
+ 149   1        if(c==1)
+ 150   1        {
+ 151   2          stop();
+ 152   2          while(1);
+ 153   2        }
+ 154   1      }
+ 155          
+ 156          void stop()
+ 157          {
+ 158   1        scl=1;
+ 159   1        sda=0;
+ 160   1        lcd_delay();
+ 161   1        sda=1;
+ 162   1        scl=0;
+ 163   1        lcd_delay();
+ 164   1      }
+ 165          
+ 166          unsigned char read()
+ 167          {
+ 168   1        unsigned char a;
+ 169   1        bit m=0;
+ 170   1        for(a=0;a<=7;a++)
+ 171   1        {
+ 172   2          scl=1;
+ 173   2          lcd_delay();
+ 174   2          m=sda;
+ 175   2          scl=0;
+ 176   2          if(m==1)
+ 177   2          {
+ 178   3            ch|=0x01;
+C51 COMPILER V9.60.0.0   MAIN                                                              06/23/2021 04:16:38 PAGE 4   
+
+ 179   3          }
+ 180   2          if(a<=6)
+ 181   2          {
+ 182   3            ch=ch<<1;
+ 183   3            lcd_delay();
+ 184   3          }
+ 185   2        }
+ 186   1        return ch;
+ 187   1      }
+ 188          
+ 189          void start()
+ 190          {
+ 191   1        scl=1;
+ 192   1        sda=1;
+ 193   1        lcd_delay();
+ 194   1        sda=0;
+ 195   1        lcd_delay();
+ 196   1        scl=0;
+ 197   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    751    ----
+   CONSTANT SIZE    =     12    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
